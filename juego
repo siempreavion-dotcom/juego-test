@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bladis Game - Fase 1</title>
+    <style>
+        body { margin: 0; background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; color: #0f0; font-family: monospace; overflow: hidden; }
+        canvas { border: 2px solid #0f0; background: #000; }
+    </style>
+</head>
+<body>
+    <div style="position: absolute; top: 20px;">Puntos: <span id="score">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+
+    canvas.width = 600;
+    canvas.height = 200;
+
+    // Variables del Jugador
+    let player = { x: 50, y: 150, w: 30, h: 30, dy: 0, jumpForce: 12, grounded: false };
+    let gravity = 0.6;
+    
+    // Variables del Obstáculo
+    let obstacle = { x: 600, y: 160, w: 20, h: 40, speed: 5 };
+    let score = 0;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar Jugador (Verde Neón)
+        ctx.fillStyle = "#0f0";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+
+        // Dibujar Obstáculo (Rojo)
+        ctx.fillStyle = "#f00";
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.w, obstacle.h);
+
+        // Lógica de Gravedad
+        if (!player.grounded) {
+            player.dy += gravity;
+            player.y += player.dy;
+        }
+
+        if (player.y + player.h >= 190) {
+            player.y = 190 - player.h;
+            player.grounded = true;
+        }
+
+        // Movimiento Obstáculo
+        obstacle.x -= obstacle.speed;
+        if (obstacle.x < -20) {
+            obstacle.x = 600;
+            score++;
+            scoreElement.innerText = score;
+            obstacle.speed += 0.2; // Aumenta dificultad
+        }
+
+        // Colisión (Game Over)
+        if (player.x < obstacle.x + obstacle.w &&
+            player.x + player.w > obstacle.x &&
+            player.y < obstacle.y + obstacle.h &&
+            player.y + player.h > obstacle.y) {
+            alert("GAME OVER - Puntos: " + score);
+            location.reload();
+        }
+
+        requestAnimationFrame(draw);
+    }
+
+    // Saltar con Espacio o Click
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" && player.grounded) {
+            player.dy = -player.jumpForce;
+            player.grounded = false;
+        }
+    });
+
+    draw();
+</script>
+</body>
+</html>
